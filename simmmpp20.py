@@ -20,10 +20,11 @@ import thread
 ISSND = False
 
 BUFFSIZE = 1024
-LOOPNUM = 1000000
+LOOPNUM = 0
 DEFAULTTIMEOUT = 600000
 SEQID = 0
 DATACODING = 15
+desphone = '18812345678'
 #connect pack
 packconnect = struct.Struct('!3I B I 16s B I H')
 #connect ack pack
@@ -31,7 +32,10 @@ packconnectack = struct.Struct('!3I I 16s B I')
 #send pack
 packsendfix = struct.Struct('!4I I 10s 21s B B B 32s 21s B 21s B 10s 24s 4B')
 packsend = struct.Struct('!3I 168s')
-desphone = '18812345678'
+#dilivery ack
+packdiliveryack = struct.Struct('!3I 5I')
+
+
 
 def emp(size,emp=None):
     if emp is None:
@@ -115,7 +119,7 @@ def simMmpp20(host, port , user, password):
     print "user: ", user
     print "pswd: ", password
     
-    #socket.setdefaulttimeout(DEFAULTTIMEOUT)
+    socket.setdefaulttimeout(DEFAULTTIMEOUT)
     #connect
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (host, port)
@@ -164,6 +168,7 @@ def simMmpp20(host, port , user, password):
     sndsucc = 0
     sndfail = 0
     drsucc = 0 
+    diliverynum = 0
     while True:
         try : 
             recvdata = sock.recv(BUFFSIZE)
@@ -186,7 +191,16 @@ def simMmpp20(host, port , user, password):
             if len(data) < cmds[0]:
                 break
             
-            if cmds[1] == 0x80000004 : #submit ack
+            if cmds[1] == 0x00000005:    #diliery
+                diliverynum +=1
+                if diliverynum % 1000 == 0:
+                    print "diliverynum : ", diliverynum
+                #print "diliverynum : ", diliverynum    
+                value = (32, 0x80000005, cmds[2], 0,0,0,0,0)
+                
+                packvalue = packdiliveryack.pack(*value)
+                sock.sendall(packvalue)         
+            elif cmds[1] == 0x80000004 : #submit ack
                 value = packsndack.unpack(data[0:32])
                 #print binascii.hexlify(data)
                 #print value

@@ -1,0 +1,12 @@
+[sys]
+host=172.17.234.112
+port=44001
+sndloop=1000000
+sleep=0.0001
+
+[snddata]
+src=18800000000
+des=95516
+msg=abcd1234
+coding=8
+svcid=AAAAAAAAAA

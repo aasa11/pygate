@@ -11,6 +11,50 @@ import time
 import struct
 import binascii
 import sys
+import thread
+
+SEQ = 0
+LOOPNUM = 1
+srcphone = '18800000000'
+desphone = '95516'
+msg = 'abcdefghij'
+CONNECTED = False
+
+
+def emp(size,emp=None):
+    if emp is None:
+        emp =''
+    for i in range(size):
+        emp += '\0'
+    return emp
+
+packdevileryfix = struct.Struct('!21s 10s 3B 21s B B 10s 8s')
+packdelivery = struct.Struct('!3I I I 75s')
+
+
+def deliverthrd(sock, seq):
+    fixvalue = (emp(21-len(desphone), desphone),'AAAAAAAAAA',0,0,0,emp(21-len(srcphone), srcphone), 0,10,emp(10-len(msg),msg), emp(8))
+    fixpackvalue = packdevileryfix.pack(*fixvalue)
+    msglen = 95
+    
+    while not CONNECTED:
+        time.sleep(1)
+    idx = 0
+    for i in range(LOOPNUM):
+        seq += 1
+        value = (msglen, 0x00000005, seq, 0, seq, fixpackvalue)
+        packvalue = packdelivery.pack(*value)
+        idx +=1
+        print binascii.hexlify(packvalue)
+        sock.sendall(packvalue)
+        if idx % 1000 == 0:
+            print 'dilivery : ',idx 
+        time.sleep(0.001)
+
+def rundelivery(sock):
+    global SEQ
+    SEQ=1000
+    thread.start_new_thread(deliverthrd, (sock, SEQ))
 
 
 def cmpp20svr(host, port): 
@@ -41,6 +85,8 @@ def cmpp20svr(host, port):
         print ('...connected from:',addr)
         isok = True
      
+        rundelivery(tcpclientsock)
+        delierynum = 0
         while True:
             try:
                 data += tcpclientsock.recv(BUFSIZE)
@@ -50,6 +96,8 @@ def cmpp20svr(host, port):
             except:
                 print "err rcv"
                 break
+            
+            
             while True:
                 if data == '' or len(data) < 12:
                     break
@@ -62,7 +110,13 @@ def cmpp20svr(host, port):
                 if len(data) < cmds[0]:
                     break
         
-                if cmds[1] == 0x00000004 : #submit
+                if cmds[1] == 0x80000005 : #delivery rsp
+                    delierynum += 1
+                    #print "delierynum", delierynum
+                    if delierynum % 1000 == 0:
+                        print "delieryack : ", delierynum
+                
+                elif cmds[1] == 0x00000004 : #submit
                     a += 1
                     #b += 2
                     #print 'submit rsp'
@@ -80,6 +134,10 @@ def cmpp20svr(host, port):
                     connectack=(36, 0x80000001, cmds[2],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
                     tcpclientsock.sendall(packconnectack.pack(*connectack))
                     print 'connect'
+                    time.sleep(1)
+                    global CONNECTED
+                    CONNECTED = True
+                    
                 elif cmds[1] == 0x00000008: #test
                     testack = (13, 0x80000008,cmds[2], 0)
                     tcpclientsock.sendall(packtestack.pack(*testack))
