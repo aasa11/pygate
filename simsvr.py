@@ -14,7 +14,7 @@ import sys
 import thread
 
 SEQ = 0
-LOOPNUM = 1
+LOOPNUM = 0
 srcphone = '18800000000'
 desphone = '95516'
 msg = 'abcdefghij'
@@ -47,7 +47,7 @@ def deliverthrd(sock, seq):
         idx +=1
         print binascii.hexlify(packvalue)
         sock.sendall(packvalue)
-        if idx % 1000 == 0:
+        if idx % 10000 == 0:
             print 'dilivery : ',idx 
         time.sleep(0.001)
 
@@ -113,7 +113,7 @@ def cmpp20svr(host, port):
                 if cmds[1] == 0x80000005 : #delivery rsp
                     delierynum += 1
                     #print "delierynum", delierynum
-                    if delierynum % 1000 == 0:
+                    if delierynum % 10000 == 0:
                         print "delieryack : ", delierynum
                 
                 elif cmds[1] == 0x00000004 : #submit
@@ -128,8 +128,8 @@ def cmpp20svr(host, port):
                         continue
                     tcpclientsock.sendall(packedvalue)  
                     #tcpclientsock.sendall('ok')
-                    if a%1000 == 0:
-                        print 'submit : ', str(a), "time : ", time.ctime(), binascii.hexlify(data)
+                    if a%10000 == 0:
+                        print 'submit : ', str(a), "time : ", time.ctime()
                 elif cmds[1] == 0x00000001:    #connect
                     connectack=(36, 0x80000001, cmds[2],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
                     tcpclientsock.sendall(packconnectack.pack(*connectack))

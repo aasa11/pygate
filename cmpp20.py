@@ -75,7 +75,7 @@ class cmpp20:
             emps = ''
         else:
             lens = size-len(emps)
-        for i in xrange(lens):
+        for _ in xrange(lens):
             emps += '\0'
         return emps
     
@@ -114,7 +114,7 @@ class cmpp20:
         time.sleep(1)
         now  = time.time()
         
-        for i in xrange(sndloop):
+        for _ in xrange(sndloop):
             value = (20+len(packall), ID_DELIVERY, self.seqid, 0, self.seqid, packall)
             packhead = st_delivery.pack(*value)
 #            print binascii.hexlify(packhead)
@@ -221,8 +221,8 @@ class cmpp20:
                     print "err unpack: ", data, ' err : ', e
                     return None
             if len(data) < cmds[0]:
-                    print 'err data length', cmds[0]
-                    return None        
+                    #print 'err data length', cmds[0]
+                    return data        
             if cmds[1] == ID_CONNECT :
                 self.sndconnectack(sock, cmds)
             elif cmds[1] == ID_ACTIVETEST :

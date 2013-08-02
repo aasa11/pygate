@@ -19,16 +19,20 @@ import thread
 
 ISSND = False
 
+
+ISSNDTERMINATE = True
 BUFFSIZE = 1024
-LOOPNUM = 0
+LOOPNUM = 1000
 DEFAULTTIMEOUT = 600000
 SEQID = 0
 DATACODING = 15
 desphone = '18812345678'
 #connect pack
 packconnect = struct.Struct('!3I B I 16s B I H')
+
 #connect ack pack
 packconnectack = struct.Struct('!3I I 16s B I')
+#packconnectack = struct.Struct('!3I I 16s I ')    #for direct test
 #send pack
 packsendfix = struct.Struct('!4I I 10s 21s B B B 32s 21s B 21s B 10s 24s 4B')
 packsend = struct.Struct('!3I 168s')
@@ -40,7 +44,7 @@ packdiliveryack = struct.Struct('!3I 5I')
 def emp(size,emp=None):
     if emp is None:
         emp =''
-    for i in range(size):
+    for _ in xrange(size):
         emp += '\0'
     return emp
 
@@ -49,6 +53,7 @@ packvaluesendfix = packsendfix.pack(*datasendfix)
 print packvaluesendfix
 #send ack pack
 packsndack = struct.Struct('!3I 4I I')
+#packsndack = struct.Struct('!3I 2I B')    #for direct test
 #dr ack pack
 packdrack = struct.Struct('!3I 4I I')
 #active ack pack
@@ -56,8 +61,10 @@ packtestack = struct.Struct('!3I I')
 #cmd pack
 packcmd = struct.Struct('!3I')
 
-
-
+#cmd terminate
+packterm = struct.Struct('!3I')
+#cmd terminate ack
+packtermack = struct.Struct('!3I')
 
 def getconvalue(seqid, user, password, timestamp):
     userlen = len(str(user))
@@ -101,17 +108,27 @@ def sendmsg(sock, datacoding):
     ISSND = True
     
     #sndvalue = 
-    for i in range(LOOPNUM):
+    for i in xrange(LOOPNUM):
         SEQID +=1
         valuesend = (180,0x00000004,SEQID,packvaluesendfix)
         packvalue = packsend.pack(*valuesend)
         sock.sendall(packvalue)
         #print binascii.hexlify(packvalue)
         #time.sleep(0.0001)
-        if SEQID % 1000 == 0:
+        if SEQID % 10000 == 0:
             print "snd: ", SEQID, ' time: ',time.ctime()
+    
+    #terminate
+    if ISSNDTERMINATE:
+        SEQID += 1
+        valueterm = (12, 0x00000002, SEQID)
+        packdata = packterm.pack(*valueterm)
+        sock.sendall(packdata)
+        print "snd terminate : ", binascii.hexlify(packdata)
         
     ISSND = False
+    
+    
 
 def simMmpp20(host, port , user, password):
     print "host: ", host
@@ -145,8 +162,9 @@ def simMmpp20(host, port , user, password):
         print "connect value: ", binascii.hexlify(packvalue)
         sock.sendall(packvalue)
         connectack = sock.recv(BUFFSIZE)
-        if not connectack or len(connectack) < 37:
-            print "connect err"
+        #if not connectack or len(connectack) < 37:
+        if not connectack:
+            print "connect err", binascii.hexlify(connectack)
             time.sleep(10)
             continue
         
@@ -193,7 +211,7 @@ def simMmpp20(host, port , user, password):
             
             if cmds[1] == 0x00000005:    #diliery
                 diliverynum +=1
-                if diliverynum % 1000 == 0:
+                if diliverynum % 10000 == 0:
                     print "diliverynum : ", diliverynum
                 #print "diliverynum : ", diliverynum    
                 value = (32, 0x80000005, cmds[2], 0,0,0,0,0)
@@ -202,9 +220,11 @@ def simMmpp20(host, port , user, password):
                 sock.sendall(packvalue)         
             elif cmds[1] == 0x80000004 : #submit ack
                 value = packsndack.unpack(data[0:32])
+                #value = packsndack.unpack(data[0:21])    # for direct test
                 #print binascii.hexlify(data)
                 #print value
                 success = value[7]
+                #success = value[5]    #for direct test
                 if success <> 0:
                     sndfail +=1
                     print "sndfail", sndfail
@@ -212,8 +232,8 @@ def simMmpp20(host, port , user, password):
                     sndsucc += 1
                     #print "sndsucc", sndsucc
                     
-#                if (sndsucc+1)%100 == 0 :
-#                    print "sndsucc : ", sndsucc, 'time: ',time.ctime()
+                if (sndsucc+1)%10000 == 0 :
+                    print "sndsucc : ", sndsucc, 'time: ',time.ctime()
             
             elif cmds[1] == 0x00000008: #test
                 testack = (16, 0x80000008,cmds[2], 0)
@@ -224,6 +244,8 @@ def simMmpp20(host, port , user, password):
                 drack = (32, 0x80000025,cmds[2],0,0,0,0,0)
                 sock.sendall(packdrack.pack(*drack))
                 drsucc +=1
+            elif cmds[1] == 0x80000002: #terminate
+                print "get terminate rsp : ", binascii.hexlify(data)
             else:
                 print 'unkown cmd : ', binascii.hexlify(data)
                 isok = False

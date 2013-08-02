@@ -1,6 +1,6 @@
 [sys]
-host=172.17.234.112
-port=44001
+host=172.17.254.180
+port=24501
 usr=11
 pwd=123
 listennum=5
@@ -12,13 +12,13 @@ timeout = 6000000
 winsize=16
 
 [connect]
-sendconnect=0
-sendterminate=0
+sendconnect=1
+sendterminate=1
 drdelay=3
 
 [snddata]
-src=18812300000
-des=95516
+src=95516
+des=18812300000;18812300001
 msg=abcd1234
 coding=15
 svcid=AAAAAAAAAA
