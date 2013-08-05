@@ -4,11 +4,11 @@ port=24501
 usr=11
 pwd=123
 listennum=5
-sndloop=1000
+sndloop=0
 sleep=1
 ptnum = 5
 bufsize = 1024
-timeout = 6000000
+timeout = 10
 winsize=16
 
 [connect]

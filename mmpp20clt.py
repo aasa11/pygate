@@ -193,7 +193,7 @@ class mmpp20clt(svrbase):
                 self.procsubmitack(cmds, para, data)
             elif cmds[1] == self.ID_DELIVERY :
                 self.snddeliveryack(sock, cmds, para)
-            elif cmds[1] == self.ID_DISCONNECT :
+            elif cmds[1] == self.ID_DISCONNECT_ACK :
                 self.proctermiateack(sock, cmds, para)  
             elif cmds[1] == self.ID_RECEIPT :
                 self.snddrack(sock, cmds,para, data)       
