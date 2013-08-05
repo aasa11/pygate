@@ -28,6 +28,8 @@ class cmpp20Svr(svrbase):
         self.packtestack = struct.Struct('!3I B')
         self.packcommitack = struct.Struct('!3I 2I B')
         self.packterminateack = struct.Struct('!3I')
+        self.packdrfix = struct.Struct('!21s 10s B B B 21s B B 2I 7s 10s 10s 21s I 8s')
+        self.packdr = struct.Struct('!3I 2I 125s')
         #snd msg data
         self.packsndfix= struct.Struct('!21s 10s 3B 21s 2B')
         
@@ -49,8 +51,9 @@ class cmpp20Svr(svrbase):
         '''snd msg, realize by derived class'''
         #para = self.getsockpara(sockid)
         sockid = para.sockid
-        para.seqid += 1 
-        value = (20+len(para.snddata), self.ID_DELIVERY, para.seqid, 0, para.seqid, para.snddata)
+        para.seqid += 1
+        msgid = self.genmsgid() 
+        value = (20+len(para.snddata), self.ID_DELIVERY, para.seqid, msgid[0], msgid[1], para.snddata)
         packvalue = para.packsnd.pack(*value)
         sock.sendall(packvalue)
         #print "snd value", binascii.hexlify(packvalue)
@@ -89,11 +92,13 @@ class cmpp20Svr(svrbase):
     def sndsubmitack(self, sock, cmds, para):
         '''submit ack'''
         para.rcvnum += 1
-        value = (21, self.ID_SUBMIT_ACK, cmds[2], para.rcvnum, 0, 0)  
+        msgid = self.genmsgid()
+        value = (21, self.ID_SUBMIT_ACK, cmds[2], msgid[0], msgid[1], 0)  
         sock.sendall(self.packcommitack.pack(*value))  
         para.seqid = cmds[2]+1
         if para.rcvnum % self.cfg.getptnum() == 0:
             print "sockid : ", para.sockid, ' : get  : ', para.rcvnum , ", time : ", time.ctime()
+        return msgid
     
     def sndterminateack(self, sock, cmds , para):
         '''terminate ack'''
@@ -101,6 +106,39 @@ class cmpp20Svr(svrbase):
         sock.sendall(self.packterminateack(*value))
         print "send terminate ack..."
         para.appconnect = False
+        
+    
+    def snddr(self, sock , para, drdata):
+        '''snd dr, realize by the derived class'''
+        fixdata = drdata
+        para.seqid += 1
+        msgid = self.genmsgid()
+        value = (20 + 125, self.ID_DELIVERY, para.seqid, msgid[0], msgid[1], fixdata)
+        packvalue = self.packdr.pack(*value)
+        #print binascii.hexlify(packvalue)
+        sock.sendall(packvalue)
+        para.drsnd += 1
+        if para.drsnd % self.cfg.getptnum() == 0 :
+            print "sockid : ", para.sockid, " : snd dr : ", para.drsnd, " : time : ", time.ctime()
+        return
+    
+    def formdrfix(self, msgid, data):
+        '''form the fix part of the dr report'''
+        '''for tmp proc'''
+        #self.packdrfix = struct.Struct('!21s 10s B B B 21s B B 2I 7s 10s 10s 21s I 8s')
+        value = (self.emp(21),
+                 self.emp(10),
+                 0,0,0,
+                 self.emp(21),
+                 1, 68, 
+                 msgid[0], msgid[1],
+                 'DELIVRD', 
+                 self.emp(10),
+                 self.emp(10),
+                 self.emp(21),
+                 0, self.emp(8))
+        packvalue = self.packdrfix.pack(*value)
+        return packvalue    
     
     
     def rcvproc(self, data , sock, para):
@@ -123,7 +161,14 @@ class cmpp20Svr(svrbase):
             elif cmds[1] == self.ID_DELIVERY_ACK :
                 self.procdeliveryack(cmds, para, data)
             elif cmds[1] == self.ID_SUBMIT :
-                self.sndsubmitack(sock, cmds, para)
+                msgid = self.sndsubmitack(sock, cmds, para)
+                '''orgnize dr data'''
+                if self.cfg.getdrloop():
+                    now = time.time()
+                    fixdata = self.formdrfix(msgid, data)
+                    para.drque.put((now, fixdata))
+                    #print fixdata
+                    #print para.drque.qsize()
             elif cmds[1] == self.ID_DISCONNECT :
                 self.sndterminateack(sock, cmds, para)         
             else:

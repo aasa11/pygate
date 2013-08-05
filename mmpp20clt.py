@@ -30,7 +30,7 @@ class mmpp20clt(svrbase):
         self.packtestack = struct.Struct('!3I I')
         self.packdeliveryack = struct.Struct('!3I 4I I')
         self.packterminateack = struct.Struct('!3I')
-        self.packdrack = struct.Struct('!3I 3I I')
+        self.packdrack = struct.Struct('!3I 4I I')
         #snd msg data
         self.packsndfix= struct.Struct('!16s 4B 10s 21s 3B 16s 16s 21s B')
                 

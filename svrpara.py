@@ -11,6 +11,7 @@ Created on 2013/08/01
 import ConfigParser
 import sys
 
+
 class svrpara:
     '''this is the config parser class for the svr'''
     def __init__(self, parafile):
@@ -59,6 +60,7 @@ class svrpara:
         self.op_sndterminate = 'sendterminate'
         self.op_drdelay = 'drdelay'
         self.op_winsize = 'winsize'
+        self.op_drloop = 'drloop'
         
     def getlistennum(self):
         '''get listen numbers from para file'''
@@ -145,6 +147,12 @@ class svrpara:
     def getdr(self):
         val = self.cfg.getint(self.sec_snd, self.op_needdr)
         return val
+    
+    def getdrloop(self):
+        val = self.cfg.getint(self.sec_connect, self.op_drloop)
+        if val == 1:
+            return True
+        return False
         
 
 #----------------------It is a split line--------------------------------------
@@ -177,6 +185,7 @@ def main():
     print para.getdrdelay()
     print para.getwinsize()
     print para.getdr()
+    print para.getdrloop()
     
 #----------------------It is a split line--------------------------------------
 

@@ -14,6 +14,7 @@ import struct
 # import binascii
 import threading
 import svrpara
+from Queue import Queue
 
 class cntpara:
     '''this struct is some para for one socket link'''
@@ -44,6 +45,9 @@ class cntpara:
         self.snddata = None
         self.packsnd = None
         
+        #send queue
+        self.drque = Queue()
+        
 #----------------------It is a split line--------------------------------------       
 
 class svrbase:
@@ -53,6 +57,7 @@ class svrbase:
         self.parafile = parafile
         self.cfg = svrpara.svrpara(self.parafile)
         self.paradefine()
+        self.msgid = [0,0]
         
     def emp(self, size, emps=None):
         '''fill empty value to string'''
@@ -64,6 +69,15 @@ class svrbase:
         for _ in xrange(lens):
             emps += '\0'
         return emps
+    
+    def genmsgid(self):
+        if self.msgid[1] < 999999:
+            self.msgid[1] += 1
+        else :
+            self.msgid[0] += 1
+            self.msgid[1] = 0
+        return self.msgid
+        
                 
     def paradefine(self):
         '''define some paras which will be used in the obj, and the child class should rewrite it'''
@@ -203,6 +217,32 @@ class svrbase:
                 print 'data proc err'
                 break 
         # rcv loop out
+        
+    def drloop(self, sock, para):
+        '''This is used to snd dr '''
+        drdelay = self.cfg.getdrdelay()
+        
+        #wait app connect
+        while not para.appconnect or not para.tcpconnect :
+            time.sleep(1)
+        
+        while para.appconnect and para.tcpconnect :
+            if para.drque.qsize() <= 0:
+                time.sleep(0.1)
+            snddata = para.drque.get()
+            drdata = snddata[1]
+            drtime = snddata[0]
+            #wait dr time
+            while time.time() - drtime < drdelay :
+                #print "now is ", time.time, "; snd time is : ", drtime 
+                time.sleep(0.01)
+            self.snddr(sock, para, drdata)
+        return
+    
+    def snddr(self, sock , para, drdata):
+        '''snd dr, realize by the derived class'''
+        pass
+        
                    
     def initcountval(self, sockid):
         '''init some count values for the one socket link'''
@@ -231,10 +271,17 @@ class svrbase:
         self.sockslink += 1
         time.sleep(1)
         print "this is the ", self.sockslink, " socket links, sock id is ", sockid
+        
+        #snd loop
         print "sockid : ", sockid, " start snd loop"
         sndthread = threading.Thread(target=self.sndloop, args=(sock, para))
         sndthread.start()
-        
+        #dr loop
+        if self.cfg.getdrloop():
+            print "sockid : ", sockid, " start dr loop"
+            drthread = threading.Thread(target=self.drloop, args=(sock, para))
+            drthread.start()
+        #recv loop
         print "sockid : ", sockid, " start rcv loop"
         self.rcvloop(sock, para)
            

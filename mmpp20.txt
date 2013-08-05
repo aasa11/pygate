@@ -5,8 +5,8 @@ usr=11
 pwd=123
 listennum=5
 sndloop=1000
-sleep=0.1
-ptnum = 50
+sleep=1
+ptnum = 5
 bufsize = 1024
 timeout = 6000000
 winsize=16
@@ -15,10 +15,11 @@ winsize=16
 sendconnect=1
 sendterminate=1
 drdelay=3
+drloop=0
 
 [snddata]
 src=95516
-des=18812300000;18812300001
+des=18812300000
 msg=abcd1234
 coding=15
 svcid=AAAAAAAAAA

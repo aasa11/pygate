@@ -4,9 +4,9 @@ port=44001
 usr=11
 pwd=123
 listennum=5
-sndloop=1000
-sleep=0.1
-ptnum = 50
+sndloop=10
+sleep=1
+ptnum = 5
 bufsize = 1024
 timeout = 6000000
 winsize=16
@@ -15,6 +15,7 @@ winsize=16
 sendconnect=0
 sendterminate=0
 drdelay=3
+drloop=1
 
 [snddata]
 src=18812300000
