@@ -243,7 +243,27 @@ class svrbase:
         '''snd dr, realize by the derived class'''
         pass
         
-                   
+    def activetestloop(self, sock, para):
+        '''This is used to snd active test '''
+        activetestgap = self.cfg.getactivetestgap()
+        
+        #wait app connect
+        while not para.appconnect or not para.tcpconnect :
+            time.sleep(1)
+        now = time.time()
+        while para.appconnect and para.tcpconnect :
+            new = time.time()
+            if new - now < activetestgap :
+                time.sleep(1)
+                continue
+            now = new
+            self.sndactivetest(sock, para)
+        return               
+    
+    def sndactivetest(self, sock , para):
+        '''snd activetest, realize by the derived class'''
+        pass
+    
     def initcountval(self, sockid):
         '''init some count values for the one socket link'''
         onepara = cntpara(sockid)
@@ -281,6 +301,12 @@ class svrbase:
             print "sockid : ", sockid, " start dr loop"
             drthread = threading.Thread(target=self.drloop, args=(sock, para))
             drthread.start()
+            
+        #activetest loop
+        if self.cfg.getactivetestloop() :
+            print "sockid : ", sockid, " start active test loop"
+            activethread = threading.Thread(target=self.activetestloop, args=(sock, para))
+            activethread.start()
         #recv loop
         print "sockid : ", sockid, " start rcv loop"
         self.rcvloop(sock, para)

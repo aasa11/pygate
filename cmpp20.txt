@@ -16,6 +16,8 @@ sendconnect=0
 sendterminate=0
 drdelay=3
 drloop=1
+activetestloop=0
+activetestgap=60
 
 [snddata]
 src=18812300000

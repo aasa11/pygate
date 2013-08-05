@@ -61,6 +61,8 @@ class svrpara:
         self.op_drdelay = 'drdelay'
         self.op_winsize = 'winsize'
         self.op_drloop = 'drloop'
+        self.op_activetestloop = 'activetestloop'
+        self.op_activetestgap = 'activetestgap'
         
     def getlistennum(self):
         '''get listen numbers from para file'''
@@ -153,6 +155,17 @@ class svrpara:
         if val == 1:
             return True
         return False
+    
+    def getactivetestloop(self):
+        val = self.cfg.getint(self.sec_connect, self.op_activetestloop)
+        if val == 1:
+            return True
+        return False
+    
+    def getactivetestgap(self):
+        val = self.cfg.getint(self.sec_connect, self.op_activetestgap)
+        return val
+        
         
 
 #----------------------It is a split line--------------------------------------
@@ -186,6 +199,8 @@ def main():
     print para.getwinsize()
     print para.getdr()
     print para.getdrloop()
+    print para.getactivetestloop()
+    print para.getactivetestgap()
     
 #----------------------It is a split line--------------------------------------
 

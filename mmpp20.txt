@@ -5,10 +5,10 @@ usr=11
 pwd=123
 listennum=5
 sndloop=0
-sleep=1
+sleep=3
 ptnum = 5
 bufsize = 1024
-timeout = 10
+timeout = 100000
 winsize=16
 
 [connect]
@@ -16,6 +16,8 @@ sendconnect=1
 sendterminate=1
 drdelay=3
 drloop=0
+activetestloop=1
+activetestgap=10
 
 [snddata]
 src=95516

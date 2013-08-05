@@ -31,6 +31,7 @@ class mmpp20clt(svrbase):
         self.packdeliveryack = struct.Struct('!3I 4I I')
         self.packterminateack = struct.Struct('!3I')
         self.packdrack = struct.Struct('!3I 4I I')
+        self.packactivetest = struct.Struct('!3I')
         #snd msg data
         self.packsndfix= struct.Struct('!16s 4B 10s 21s 3B 16s 16s 21s B')
                 
@@ -172,6 +173,14 @@ class mmpp20clt(svrbase):
             print "sock : ", para.sockid, " : dr get : ", para.drnum, ", time : ", time.ctime()
         return
     
+    def sndactivetest(self, sock , para):
+        '''snd activetest, realize by the derived class'''
+        para.seqid += 1
+        value = (12, self.ID_ACTIVETEST, para.seqid)
+        packvalue = self.packactivetest.pack(*value)
+        sock.sendall(packvalue)
+        print "sock : ", para.sockid, " : snd active test, time : ", time.ctime() 
+    
     def rcvproc(self, data , sock, para):
         '''rcv proc , realize by derived class'''
         while True:
@@ -196,7 +205,9 @@ class mmpp20clt(svrbase):
             elif cmds[1] == self.ID_DISCONNECT_ACK :
                 self.proctermiateack(sock, cmds, para)  
             elif cmds[1] == self.ID_RECEIPT :
-                self.snddrack(sock, cmds,para, data)       
+                self.snddrack(sock, cmds,para, data)  
+            elif cmds[1] == self.ID_ACTIVETEST_ACK:
+                print "get active test ack ..."      
             else:
                 print 'unkown cmd : ', cmds
                            

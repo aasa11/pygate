@@ -140,6 +140,9 @@ class cmpp20Svr(svrbase):
         packvalue = self.packdrfix.pack(*value)
         return packvalue    
     
+    def sndactivetest(self, sock , para):
+        '''snd activetest, realize by the derived class'''
+        pass
     
     def rcvproc(self, data , sock, para):
         '''rcv proc , realize by derived class'''
@@ -170,7 +173,9 @@ class cmpp20Svr(svrbase):
                     #print fixdata
                     #print para.drque.qsize()
             elif cmds[1] == self.ID_DISCONNECT :
-                self.sndterminateack(sock, cmds, para)         
+                self.sndterminateack(sock, cmds, para)  
+            elif cmds[1] == self.ID_ACTIVETEST_ACK:
+                print "get active test ack ..."       
             else:
                 print 'unkown cmd : ', binascii.hexlify(data)
                            
