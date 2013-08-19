@@ -7,22 +7,23 @@ Created on 2013/08/02
 
 @author: huxiufeng
 '''
-from svrbase import *
+import svrbase
 import struct
 import sys
 import binascii
 import datetime
 import hashlib
+import time
 
-class mmpp20clt(svrbase):
+class mmpp20clt(svrbase.svrbase):
     def __init__(self, parafile):
         '''init file , call father's init'''
-        svrbase.__init__(self, parafile)
+        svrbase.svrbase.__init__(self, parafile)
         
     def packdefine(self):
         '''initialize the pack data, realize by derived class'''
         print "mmpp20 pack define init"
-        svrbase.packdefine(self)
+        svrbase.svrbase.packdefine(self)
         self.packcmd = struct.Struct('!3I')
         self.packconnect = struct.Struct('!3I B I 16s B I H')
         self.packterminate = struct.Struct('!3I')
@@ -85,7 +86,7 @@ class mmpp20clt(svrbase):
             para.appconnect = False
             print 'pack connect err'
             return False
-        sock.sendall(packvalue)
+        self.socksend(sock, packvalue)
         print "sockid : ", para.sockid, "connect : ", binascii.hexlify(packvalue)
         para.seqid += 1
         
@@ -95,17 +96,16 @@ class mmpp20clt(svrbase):
         '''cmpp20 do not snd terminate , it just wait terminate'''
         value = (12, self.ID_DISCONNECT, para.seqid)
         packdata = self.packterminate.pack(*value)
-        sock.sendall(packdata)
+        self.socksend(sock, packdata)
         print "sockid : ", para.sockid, "snd terminate : ", binascii.hexlify(packdata)
         
     
     def sndmsg(self, sock , para):
         '''snd msg, realize by derived class'''
-        #para = self.getsockpara(sockid)
         para.seqid += 1 
         value = (12+len(para.snddata), self.ID_SUBMIT, para.seqid, para.snddata)
         packvalue = para.packsnd.pack(*value)
-        sock.sendall(packvalue)
+        self.socksend(sock, packvalue)
         #print "sockid : ", para.sockid, "snd value", binascii.hexlify(packvalue)
     
     def sndconnectack(self, sock, cmds, para):
@@ -117,7 +117,7 @@ class mmpp20clt(svrbase):
     def sndactivetestack(self, sock, cmds, para):
         '''active test ack'''
         value = (16, self.ID_ACTIVETEST_ACK,cmds[2], 0)
-        sock.sendall(self.packtestack.pack(*value))
+        self.socksend(sock, self.packtestack.pack(*value))
         print 'sockid : ', para.sockid, 'active test ack'
         
     def procsubmitack(self, cmds, para, data):
@@ -134,10 +134,9 @@ class mmpp20clt(svrbase):
     
     def snddeliveryack(self, sock, cmds, para):
         '''submit ack'''
-        #print "delivery ack"
         para.rcvnum += 1
         value = (32, self.ID_DELIVERY_ACK, cmds[2], 0, 0, 0, 0, 0)  
-        sock.sendall(self.packdeliveryack.pack(*value))  
+        self.socksend(sock, self.packdeliveryack.pack(*value))  
         para.seqid = cmds[2]+1
         if para.rcvnum % self.cfg.getptnum() == 0:
             print "sockid : ", para.sockid, ' : get : ', para.rcvnum , ", time : ", time.ctime()
@@ -167,7 +166,7 @@ class mmpp20clt(svrbase):
         '''ack the dr '''
         value = (32, self.ID_RECEIPT_ACK, cmds[2], 0,0,0,0,0)
         packvalue = self.packdrack.pack(*value)
-        sock.sendall(packvalue)
+        self.socksend(sock, packvalue)
         para.drnum += 1
         if para.drnum % self.cfg.getptnum() == 0:
             print "sock : ", para.sockid, " : dr get : ", para.drnum, ", time : ", time.ctime()
@@ -178,7 +177,7 @@ class mmpp20clt(svrbase):
         para.seqid += 1
         value = (12, self.ID_ACTIVETEST, para.seqid)
         packvalue = self.packactivetest.pack(*value)
-        sock.sendall(packvalue)
+        self.socksend(sock, packvalue)
         print "sock : ", para.sockid, " : snd active test, time : ", time.ctime() 
     
     def rcvproc(self, data , sock, para):
@@ -192,7 +191,6 @@ class mmpp20clt(svrbase):
                     print "err unpack: ", data, ' err : ', e
                     return None
             if len(data) < cmds[0]:
-                    #print 'err data length', cmds[0]
                     return data        
             if cmds[1] == self.ID_CONNECT_ACK :
                 self.procconnectack(cmds, para, data)
@@ -221,8 +219,6 @@ class mmpp20clt(svrbase):
     def initsndloop(self, para):
         '''do some init for snd loop, realize by derived class'''
         '''init snd data'''
-        #para = self.getsockpara(sockid)
-        
         src = self.cfg.getsrc()
         des = self.cfg.getdes().split(';')
         print "des phones : ", des

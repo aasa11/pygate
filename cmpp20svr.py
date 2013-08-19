@@ -8,20 +8,21 @@ Created on 2013/08/01
 @author: huxiufeng
 '''
 
-from svrbase import *
+import svrbase
 import struct
 import sys
 import binascii
+import time
 
 
-class cmpp20Svr(svrbase):
+class cmpp20Svr(svrbase.svrbase):
     def __init__(self, parafile):
-        svrbase.__init__(self, parafile)
+        svrbase.svrbase.__init__(self, parafile)
         
     def packdefine(self):
         '''initialize the pack data, realize by derived class'''
         print "cmpp20 pack define init"
-        svrbase.packdefine(self)
+        svrbase.svrbase.packdefine(self)
         self.packcmd = struct.Struct('!3I')
         self.packconnect = struct.Struct('!3I 16s B I')
         self.packconnectack = struct.Struct('!3I B 16s B')
@@ -49,13 +50,11 @@ class cmpp20Svr(svrbase):
     
     def sndmsg(self, sock , para):
         '''snd msg, realize by derived class'''
-        #para = self.getsockpara(sockid)
-        sockid = para.sockid
         para.seqid += 1
         msgid = self.genmsgid() 
         value = (20+len(para.snddata), self.ID_DELIVERY, para.seqid, msgid[0], msgid[1], para.snddata)
         packvalue = para.packsnd.pack(*value)
-        sock.sendall(packvalue)
+        self.socksend(sock, packvalue)
         #print "snd value", binascii.hexlify(packvalue)
     
     def sndconnectack(self, sock, cmds, para):
@@ -63,7 +62,7 @@ class cmpp20Svr(svrbase):
         #para = self.getsockpara(sockid)
         sockid = para.sockid
         value=(30, self.ID_CONNECT_ACK, cmds[2],0,self.emp(16),0)
-        sock.sendall(self.packconnectack.pack(*value))
+        self.socksend(sock, self.packconnectack.pack(*value))
         print 'sockid : ', sockid, ' connect ack'
         para.appconnect = True
         para.seqid = cmds[2]+1
@@ -74,7 +73,7 @@ class cmpp20Svr(svrbase):
         '''active test ack'''
         sockid = para.sockid
         value = (13, self.ID_ACTIVETEST_ACK,cmds[2], 0)
-        sock.sendall(self.packtestack.pack(*value))
+        self.socksend(sock, self.packtestack.pack(*value))
         print 'sockid : ', sockid, 'active test ack'
         
     def procdeliveryack(self, cmds, para, data):
@@ -92,9 +91,9 @@ class cmpp20Svr(svrbase):
     def sndsubmitack(self, sock, cmds, para):
         '''submit ack'''
         para.rcvnum += 1
-        msgid = self.genmsgid()
+        msgid = self.genmsgid_ack()
         value = (21, self.ID_SUBMIT_ACK, cmds[2], msgid[0], msgid[1], 0)  
-        sock.sendall(self.packcommitack.pack(*value))  
+        self.socksend(sock, self.packcommitack.pack(*value))  
         para.seqid = cmds[2]+1
         if para.rcvnum % self.cfg.getptnum() == 0:
             print "sockid : ", para.sockid, ' : get  : ', para.rcvnum , ", time : ", time.ctime()
@@ -103,7 +102,7 @@ class cmpp20Svr(svrbase):
     def sndterminateack(self, sock, cmds , para):
         '''terminate ack'''
         value = (12, self.ID_DISCONNECT_ACK, cmds[2])
-        sock.sendall(self.packterminateack(*value))
+        self.socksend(sock, self.packterminateack(*value))
         print "send terminate ack..."
         para.appconnect = False
         
@@ -112,11 +111,11 @@ class cmpp20Svr(svrbase):
         '''snd dr, realize by the derived class'''
         fixdata = drdata
         para.seqid += 1
-        msgid = self.genmsgid()
+        msgid = self.genmsgid_dr()
         value = (20 + 125, self.ID_DELIVERY, para.seqid, msgid[0], msgid[1], fixdata)
         packvalue = self.packdr.pack(*value)
         #print binascii.hexlify(packvalue)
-        sock.sendall(packvalue)
+        self.socksend(sock, packvalue)
         para.drsnd += 1
         if para.drsnd % self.cfg.getptnum() == 0 :
             print "sockid : ", para.sockid, " : snd dr : ", para.drsnd, " : time : ", time.ctime()

@@ -58,6 +58,14 @@ class svrbase:
         self.cfg = svrpara.svrpara(self.parafile)
         self.paradefine()
         self.msgid = [0,0]
+        self.msgid_ack = [0,0]
+        self.msgid_dr = [0,0]
+        self.mutex = threading.Lock()
+        
+    def socksend(self, sock, strs):
+        self.mutex.acquire(1)
+        sock.sendall(strs)
+        self.mutex.release()
         
     def emp(self, size, emps=None):
         '''fill empty value to string'''
@@ -71,12 +79,21 @@ class svrbase:
         return emps
     
     def genmsgid(self):
-        if self.msgid[1] < 999999:
+        if self.msgid[1] < 9999999:
             self.msgid[1] += 1
         else :
             self.msgid[0] += 1
             self.msgid[1] = 0
         return self.msgid
+    
+    def genmsgid_ack(self):
+        self.msgid_ack[1] += 1
+        return self.msgid_ack
+    
+    def genmsgid_dr(self):
+        self.msgid_dr[0] += 1
+        return self.msgid_dr
+        
         
                 
     def paradefine(self):
@@ -310,8 +327,14 @@ class svrbase:
         #recv loop
         print "sockid : ", sockid, " start rcv loop"
         self.rcvloop(sock, para)
-           
+        
+        #join   
         sndthread.join()
+        if self.cfg.getdrloop():
+            drthread.join()
+        if self.cfg.getactivetestloop() :
+            activethread.join()
+        #close
         sock.close()
         self.removecountval(sockid)
         self.sockslink -= 1
