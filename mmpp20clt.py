@@ -222,15 +222,19 @@ class mmpp20clt(svrbase.svrbase):
         src = self.cfg.getsrc()
         des = self.cfg.getdes().split(';')
         print "des phones : ", des
-        msg = self.cfg.getmsg()
+        msgori = self.cfg.getmsg()
         coding = self.cfg.getcoding()
+        emiclass = self.cfg.getemiclass()
         svcid = self.cfg.getsvcid()
+        msgdatas = self.getsnddata(coding, msgori)
+        '''only snd the first msg'''
+        msg = msgdatas[0]
         #self.packsndfix= struct.Struct('!16s 4B 10s 21s 3B 16s 16s 21s B')
         fixs = (self.emp(16),
                 0,0,self.cfg.getdr(),0,
                 self.emp(10,svcid),
                 self.emp(21),
-                0,0,coding,
+                0,emiclass,coding,
                 self.emp(16),self.emp(16),
                 self.emp(21, src),len(des)
                 )

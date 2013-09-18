@@ -94,6 +94,20 @@ class svrbase:
         self.msgid_dr[0] += 1
         return self.msgid_dr
         
+    def getsnddata(self, datacoding, strs):
+        '''it is used to change the format and split the long message'''
+        if datacoding == 8:
+            print "It is ucs-2"
+            print strs
+            strs = strs.decode('gbk').encode('utf-16BE')
+        outstr = []
+        if len(strs) < 140:
+            outstr.append(strs)
+        else :
+            outstr.append('\x05\x00\x03\x00\x01\x02'+strs[0:134])
+            outstr.append(strs[134:])
+        print outstr
+        return outstr
         
                 
     def paradefine(self):

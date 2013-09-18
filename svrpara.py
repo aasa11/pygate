@@ -53,6 +53,7 @@ class svrpara:
         self.op_des = 'des'
         self.op_msg = 'msg'
         self.op_coding = 'coding'
+        self.op_emiclass = 'emiclass'
         self.op_svcid = 'svcid'
         self.op_needdr = 'needdr'
         
@@ -132,6 +133,10 @@ class svrpara:
     
     def getcoding(self):
         val = self.cfg.getint(self.sec_snd, self.op_coding)
+        return val
+    
+    def getemiclass(self):
+        val = self.cfg.getint(self.sec_snd, self.op_emiclass)
         return val
     
     def getsvcid(self):
