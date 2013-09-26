@@ -107,6 +107,46 @@ class mmpp20clt(svrbase.svrbase):
         packvalue = para.packsnd.pack(*value)
         self.socksend(sock, packvalue)
         #print "sockid : ", para.sockid, "snd value", binascii.hexlify(packvalue)
+        
+    def sndautoack(self, sock, desphone, para):
+        '''snd auto ack msg, realize by derived class'''
+        src = self.cfg.getsrc()
+        des = [desphone]
+        #print "des phones : ", des
+        msgori = self.cfg.getackmsg()
+        coding = self.cfg.getackcoding()
+        emiclass = self.cfg.getemiclass()
+        svcid = self.cfg.getsvcid()
+        msgdatas = self.getsnddata(coding, msgori)
+        '''only snd the first msg'''
+        msg = msgdatas[0]
+        #self.packsndfix= struct.Struct('!16s 4B 10s 21s 3B 16s 16s 21s B')
+        fixs = (self.emp(16),
+                0,0,self.cfg.getackneeddr(),0,
+                self.emp(10,svcid),
+                self.emp(21),
+                0,emiclass,coding,
+                self.emp(16),self.emp(16),
+                self.emp(21, src),len(des)
+                )
+        #print fixs
+        packfix = self.packsndfix.pack(*fixs)
+        for phone in des :
+            phonevalue = (self.emp(21,phone), )
+            packfix += self.packphone.pack(*phonevalue)
+        
+        valuelen = (len(msg), )
+        sndmsg = packfix + self.packbyte.pack(*valuelen) + msg + self.emp(28)
+        prsnd = '!3I %ds' % len(sndmsg)
+        packsnd = struct.Struct(prsnd)
+#         para.snddata = sndmsg
+#         para.packsnd = packsnd        
+        para.seqid += 1 
+        value = (12+len(sndmsg), self.ID_SUBMIT, para.seqid, sndmsg)
+        packvalue = packsnd.pack(*value)
+        print "auto ack : ", packvalue
+        self.socksend(sock, packvalue)
+        
     
     def sndconnectack(self, sock, cmds, para):
         '''connect ack'''
@@ -132,7 +172,7 @@ class mmpp20clt(svrbase.svrbase):
             print "sockid : ", para.sockid, " : snd fail ", para.sndfail, " , rt : ", rt         
         return
     
-    def snddeliveryack(self, sock, cmds, para):
+    def snddeliveryack(self, sock, cmds, para, data):
         '''submit ack'''
         para.rcvnum += 1
         value = (32, self.ID_DELIVERY_ACK, cmds[2], 0, 0, 0, 0, 0)  
@@ -140,6 +180,16 @@ class mmpp20clt(svrbase.svrbase):
         para.seqid = cmds[2]+1
         if para.rcvnum % self.cfg.getptnum() == 0:
             print "sockid : ", para.sockid, ' : get : ', para.rcvnum , ", time : ", time.ctime()
+            
+        if self.cfg.getautoackon() == 1:
+            srcphone = ''
+            for v in data[62:62+21]:
+                if v == '\0':
+                    break
+                srcphone +=v
+                
+            print "srcphone", srcphone
+            self.sndautoack(sock, srcphone, para)
     
     def sndterminateack(self, sock, cmds , para):
         '''terminate ack'''
@@ -199,7 +249,7 @@ class mmpp20clt(svrbase.svrbase):
             elif cmds[1] == self.ID_SUBMIT_ACK :
                 self.procsubmitack(cmds, para, data)
             elif cmds[1] == self.ID_DELIVERY :
-                self.snddeliveryack(sock, cmds, para)
+                self.snddeliveryack(sock, cmds, para, data)
             elif cmds[1] == self.ID_DISCONNECT_ACK :
                 self.proctermiateack(sock, cmds, para)  
             elif cmds[1] == self.ID_RECEIPT :

@@ -36,6 +36,7 @@ class svrpara:
         self.sec_sys = 'sys'
         self.sec_snd = 'snddata'
         self.sec_connect = 'connect'
+        self.sec_autoack = 'autoack'
     
         # options
         self.op_host = 'host'
@@ -64,6 +65,12 @@ class svrpara:
         self.op_drloop = 'drloop'
         self.op_activetestloop = 'activetestloop'
         self.op_activetestgap = 'activetestgap'
+        
+        self.op_autoackon = 'autoackon'
+        self.op_ackdelay = 'ackdelay'
+        self.op_ackmsg = 'ackmsg'
+        self.op_ackcoding = 'ackcoding'
+        self.op_ackneeddr = 'ackneeddr'
         
     def getlistennum(self):
         '''get listen numbers from para file'''
@@ -170,6 +177,27 @@ class svrpara:
     def getactivetestgap(self):
         val = self.cfg.getint(self.sec_connect, self.op_activetestgap)
         return val
+    
+    def getautoackon(self):
+        val = self.cfg.getint(self.sec_autoack, self.op_autoackon)
+        return val
+    
+    def getackdelay(self):
+        val = self.cfg.getint(self.sec_autoack, self.op_ackdelay)
+        return val
+    
+    def getackmsg(self):
+        val = self.cfg.get(self.sec_autoack, self.op_ackmsg)
+        return val
+    
+    def getackcoding(self):
+        val = self.cfg.getint(self.sec_autoack, self.op_ackcoding)
+        return val
+    
+    def getackneeddr(self):
+        val = self.cfg.getint(self.sec_autoack, self.op_ackneeddr)
+        return val
+        
         
         
 
@@ -206,6 +234,12 @@ def main():
     print para.getdrloop()
     print para.getactivetestloop()
     print para.getactivetestgap()
+    
+    print para.getautoackon()
+    print para.getackdelay()
+    print para.getackmsg()
+    print para.getackcoding()
+    print para.getackneeddr()
     
 #----------------------It is a split line--------------------------------------
 

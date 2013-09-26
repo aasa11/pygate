@@ -26,3 +26,10 @@ msg=abcd1234
 coding=15
 svcid=AAAAAAAAAA
 needdr=1
+
+[autoack]
+autoackon=1
+ackdelay=1
+ackmsg=我们的应答
+ackcoding=15
+ackneeddr=1
