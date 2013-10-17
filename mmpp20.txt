@@ -1,36 +1,37 @@
 [sys]
-host=172.17.254.180
-port=24501
-usr=11
-pwd=123
-listennum=5
-sndloop=1
-sleep=3
+host = 172.17.254.180
+port = 24501
+usr = 11
+pwd = 123
+listennum = 5
+sndloop = 0
+sleep = 0.05
 ptnum = 1
 bufsize = 1024
 timeout = 100000
-winsize=16
+winsize = 16
 
 [connect]
-sendconnect=1
-sendterminate=1
-drdelay=3
-drloop=0
-activetestloop=1
-activetestgap=10
+sendconnect = 1
+sendterminate = 1
+drdelay = 3
+drloop = 0
+activetestloop = 1
+activetestgap = 10
 
 [snddata]
-src=95516
-des=18812300000
-msg=thisis567not54end
-coding=15
-svcid=AAAAAAAAAA
-needdr=1
-emiclass=1
+src = 95516
+des = 18812300000
+msg = 您的验证码是123456
+coding = 15
+svcid = AAAAAAAAAA
+needdr = 1
+emiclass = 1
 
 [autoack]
-autoackon=1
-ackdelay=1
-ackmsg=thisis123not54end
-ackcoding=15
-ackneeddr=1
+autoackon = 0
+ackdelay = 1
+ackmsg = thisis123not54end
+ackcoding = 15
+ackneeddr = 1
+

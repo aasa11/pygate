@@ -125,7 +125,7 @@ class mmpp20clt(svrbase.svrbase):
                 0,0,self.cfg.getackneeddr(),0,
                 self.emp(10,svcid),
                 self.emp(21),
-                0,emiclass,coding,
+                1,emiclass,coding,
                 self.emp(16),self.emp(16),
                 self.emp(21, src),len(des)
                 )
@@ -284,7 +284,7 @@ class mmpp20clt(svrbase.svrbase):
                 0,0,self.cfg.getdr(),0,
                 self.emp(10,svcid),
                 self.emp(21),
-                0,emiclass,coding,
+                1,emiclass,coding,
                 self.emp(16),self.emp(16),
                 self.emp(21, src),len(des)
                 )

@@ -37,6 +37,7 @@ class svrpara:
         self.sec_snd = 'snddata'
         self.sec_connect = 'connect'
         self.sec_autoack = 'autoack'
+        self.sec_sshhost = r'sec_sshhost'
     
         # options
         self.op_host = 'host'

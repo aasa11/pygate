@@ -164,6 +164,8 @@ class cmpp20Svr(svrbase.svrbase):
                 self.procdeliveryack(cmds, para, data)
             elif cmds[1] == self.ID_SUBMIT :
                 msgid = self.sndsubmitack(sock, cmds, para)
+                #test
+                print binascii.hexlify(data[0:100])
                 '''orgnize dr data'''
                 if self.cfg.getdrloop():
                     now = time.time()
@@ -192,9 +194,12 @@ class cmpp20Svr(svrbase.svrbase):
         
         src = self.cfg.getsrc()
         des = self.cfg.getdes()
-        msg = self.cfg.getmsg()
+        msgori = self.cfg.getmsg()
         coding = self.cfg.getcoding()
         svcid = self.cfg.getsvcid()
+        msgdatas = self.getsnddata(coding, msgori)
+        '''only snd the first msg'''
+        msg = msgdatas[0]
         #self.packsndfix= struct.Struct('!21s 10s 3B 21s 2B')
         fixs = (self.emp(21,des), 
                    self.emp(10, svcid),

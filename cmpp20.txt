@@ -4,9 +4,9 @@ port=44001
 usr=11
 pwd=123
 listennum=5
-sndloop=1000000000
-sleep=1
-ptnum = 5
+sndloop=0
+sleep=0.05
+ptnum = 1000
 bufsize = 1024
 timeout = 6000000
 winsize=16
@@ -22,13 +22,13 @@ activetestgap=60
 [snddata]
 src=18812300000
 des=95516
-msg=abcd1234
-coding=15
+msg=abcd1234我们
+coding=8
 svcid=AAAAAAAAAA
 needdr=1
 
 [autoack]
-autoackon=1
+autoackon=0
 ackdelay=1
 ackmsg=我们的应答
 ackcoding=15
