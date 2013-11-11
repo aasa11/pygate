@@ -1,7 +1,9 @@
 [sys]
-host = 172.17.254.244
-port = 24501
-usr = 11
+host = 172.17.234.112
+port = 44002
+remotehost = 172.17.254.244
+remoteport = 40002
+usr = 123
 pwd = 123
 listennum = 5
 sndloop = 100
@@ -15,25 +17,21 @@ winsize = 16
 sendconnect = 1
 sendterminate = 1
 drdelay = 3
-drloop = 0
+drloop = 1
 activetestloop = 1
 activetestgap = 10
+unbindtime = 75
 
 [snddata]
-pktotal=1
-pknumber=1
-needdr = 1
-priority=2
-svcid = AAAAAAAAAA
-payer=1234567
+src=18812300000
+des=95516
+msg=sgip测试abcd1234我们
+coding=8
+svcid=AAAAAAAAAA
+needdr=1
 protocolid=1
 emiclass = 1
-coding = 15
-validperiod=0
-scheduletime=0
-src = 95516
-des = 11111100000
-msg = 这是123没有456结束啦啦
+
 
 
 

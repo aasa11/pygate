@@ -250,6 +250,7 @@ class mmpp20clt(svrbase.svrbase):
                 self.procsubmitack(cmds, para, data)
             elif cmds[1] == self.ID_DELIVERY :
                 self.snddeliveryack(sock, cmds, para, data)
+                pass
             elif cmds[1] == self.ID_DISCONNECT_ACK :
                 self.proctermiateack(sock, cmds, para)  
             elif cmds[1] == self.ID_RECEIPT :
@@ -281,11 +282,12 @@ class mmpp20clt(svrbase.svrbase):
         msg = msgdatas[0]
         #self.packsndfix= struct.Struct('!16s 4B 10s 21s 3B 16s 16s 21s B')
         fixs = (self.emp(16),
-                0,0,self.cfg.getdr(),0,
+                self.cfg.getpktotal(),self.cfg.getpknumber(),self.cfg.getdr(),self.cfg.getpriority(),
                 self.emp(10,svcid),
-                self.emp(21),
-                1,emiclass,coding,
-                self.emp(16),self.emp(16),
+                self.emp(21,self.cfg.getpayer()),
+                self.cfg.getprotocolid(),emiclass,coding,
+                (self.emp(16) if self.cfg.getvalidperiod() == '0'  else self.emp(16, self.cfg.getvalidperiod()) ),
+                (self.emp(16) if self.cfg.getscheduletime() == '0'  else self.emp(16, self.cfg.getscheduletime()) ),
                 self.emp(21, src),len(des)
                 )
         #print fixs

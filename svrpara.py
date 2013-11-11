@@ -42,6 +42,8 @@ class svrpara:
         # options
         self.op_host = 'host'
         self.op_port = 'port'
+        self.op_remotehost = 'remotehost'
+        self.op_remoteport = 'remoteport'
         self.op_listen = 'listennum'
         self.op_loop = 'sndloop'
         self.op_sleep = 'sleep'
@@ -51,14 +53,21 @@ class svrpara:
         self.op_usr = 'usr'
         self.op_pwd = 'pwd'
         
+        self.op_pktotal = 'pktotal'
+        self.op_pknumber = 'pknumber'
+        self.op_needdr = 'needdr'
+        self.op_priority = 'priority'
+        self.op_svcid = 'svcid'
+        self.op_payer = 'payer'
+        self.op_protocolid = 'protocolid'
+        self.op_emiclass = 'emiclass'
+        self.op_coding = 'coding'
+        self.op_validperiod = 'validperiod'
+        self.op_scheduletime = 'scheduletime'
         self.op_src = 'src'
         self.op_des = 'des'
         self.op_msg = 'msg'
-        self.op_coding = 'coding'
-        self.op_emiclass = 'emiclass'
-        self.op_svcid = 'svcid'
-        self.op_needdr = 'needdr'
-        
+              
         self.op_sndconnect = 'sendconnect'
         self.op_sndterminate = 'sendterminate'
         self.op_drdelay = 'drdelay'
@@ -66,6 +75,8 @@ class svrpara:
         self.op_drloop = 'drloop'
         self.op_activetestloop = 'activetestloop'
         self.op_activetestgap = 'activetestgap'
+        self.op_unbindtime = 'unbindtime'
+        
         
         self.op_autoackon = 'autoackon'
         self.op_ackdelay = 'ackdelay'
@@ -82,6 +93,13 @@ class svrpara:
         '''get the host para from the para file'''
         host = self.cfg.get(self.sec_sys, self.op_host)
         port = self.cfg.getint(self.sec_sys, self.op_port)
+        addr = (host, port)
+        return addr
+    
+    def getremotesockaddr(self):
+        '''get the host para from the para file'''
+        host = self.cfg.get(self.sec_sys, self.op_remotehost)
+        port = self.cfg.getint(self.sec_sys, self.op_remoteport)
         addr = (host, port)
         return addr
     
@@ -198,9 +216,38 @@ class svrpara:
     def getackneeddr(self):
         val = self.cfg.getint(self.sec_autoack, self.op_ackneeddr)
         return val
+    
+    def getpktotal(self):
+        val = self.cfg.getint(self.sec_snd, self.op_pktotal)
+        return val
+    
+    def getpknumber(self):
+        val = self.cfg.getint(self.sec_snd, self.op_pknumber)
+        return val
+    
+    def getpriority(self):
+        val = self.cfg.getint(self.sec_snd, self.op_priority)
+        return val
+    
+    def getpayer(self):
+        val = self.cfg.get(self.sec_snd, self.op_payer)
+        return val
+    
+    def getprotocolid(self):
+        val = self.cfg.getint(self.sec_snd, self.op_protocolid)
+        return val
+    
+    def getvalidperiod(self):
+        val = self.cfg.get(self.sec_snd, self.op_validperiod)
+        return val
+    
+    def getscheduletime(self):
+        val = self.cfg.get(self.sec_snd, self.op_scheduletime)
+        return val  
         
-        
-        
+    def getunbindtime(self):
+        val = self.cfg.getint(self.sec_connect, self.op_unbindtime)
+        return val
 
 #----------------------It is a split line--------------------------------------
 

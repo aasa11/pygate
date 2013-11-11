@@ -138,6 +138,45 @@ class svrbase:
         self.ID_RECEIPT            = 0x00000025
         self.ID_RECEIPT_ACK        = 0x80000025
         
+        #SGIP define
+        self.ID_SGIP_BIND = 0x1
+        self.ID_SGIP_BIND_RESP = 0x80000001
+        self.ID_SGIP_UNBIND = 0x2
+        self.ID_SGIP_UNBIND_RESP = 0x80000002
+        self.ID_SGIP_SUBMIT = 0x3
+        self.ID_SGIP_SUBMIT_RESP = 0x80000003
+        self.ID_SGIP_DELIVER = 0x4
+        self.ID_SGIP_DELIVER_RESP = 0x80000004
+        self.ID_SGIP_REPORT = 0x5
+        self.ID_SGIP_REPORT_RESP = 0x80000005
+        self.ID_SGIP_ADDSP = 0x6
+        self.ID_SGIP_ADDSP_RESP = 0x80000006
+        self.ID_SGIP_MODIFYSP = 0x7
+        self.ID_SGIP_MODIFYSP_RESP = 0x80000007
+        self.ID_SGIP_DELETESP = 0x8
+        self.ID_SGIP_DELETESP_RESP = 0x80000008
+        self.ID_SGIP_QUERYROUTE = 0x9
+        self.ID_SGIP_QUERYROUTE_RESP = 0x80000009
+        self.ID_SGIP_ADDTELESEG = 0xa
+        self.ID_SGIP_ADDTELESEG_RESP = 0x8000000a
+        self.ID_SGIP_MODIFYTELESEG = 0xb
+        self.ID_SGIP_MODIFYTELESEG_RESP = 0x8000000b
+        self.ID_SGIP_DELETETELESEG = 0xc
+        self.ID_SGIP_DELETETELESEG_RESP = 0x8000000c
+        self.ID_SGIP_ADDSMG = 0xd
+        self.ID_SGIP_ADDSMG_RESP = 0x8000000d
+        self.ID_SGIP_MODIFYSMG = 0xe
+        self.ID_SGIP_MODIFYSMG_RESP = 0x0000000e
+        self.ID_SGIP_DELETESMG = 0xf
+        self.ID_SGIP_DELETESMG_RESP = 0x8000000f
+        self.ID_SGIP_CHECKUSER = 0x10
+        self.ID_SGIP_CHECKUSER_RESP = 0x80000010
+        self.ID_SGIP_USERRPT = 0x11
+        self.ID_SGIP_USERRPT_RESP = 0x80000011
+        self.ID_SGIP_TRACE = 0x1000
+        self.ID_SGIP_TRACE_RESP = 0x80001000
+
+        
         #para transfer
         self.packbyte = struct.Struct('!B')
         self.packint = struct.Struct('!I')
@@ -266,7 +305,7 @@ class svrbase:
             #wait dr time
             while time.time() - drtime < drdelay :
                 #print "now is ", time.time, "; snd time is : ", drtime 
-                time.sleep(0.01)
+                time.sleep(0.1)
             self.snddr(sock, para, drdata)
         return
     
@@ -380,6 +419,7 @@ class svrbase:
         socket.setdefaulttimeout(DEFAULTTIMEOUT)   
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_address = self.cfg.getsockaddr()
+        print server_address
         sock.connect(server_address)
         sock.setblocking(True)
         # sock proc
