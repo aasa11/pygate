@@ -277,6 +277,7 @@ class mmpp20clt(svrbase.svrbase):
         coding = self.cfg.getcoding()
         emiclass = self.cfg.getemiclass()
         svcid = self.cfg.getsvcid()
+        binascii.hexlify(msgori)
         msgdatas = self.getsnddata(coding, msgori)
         '''only snd the first msg'''
         msg = msgdatas[0]

@@ -15,6 +15,7 @@ import struct
 import threading
 import svrpara
 from Queue import Queue
+import binascii
 
 class cntpara:
     '''this struct is some para for one socket link'''
@@ -96,7 +97,20 @@ class svrbase:
         
     def getsnddata(self, datacoding, strs):
         '''it is used to change the format and split the long message'''
-        if datacoding == 8:
+        print binascii.hexlify(strs)
+        if datacoding == 3 or datacoding == 4 or datacoding == 246:
+            outstr = ''
+            for p in strs:
+                if p not in ('0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'):
+                    p = 0
+                outstr += p
+            outstr = binascii.unhexlify(outstr)
+            print binascii.hexlify(outstr), outstr
+            outlist = []
+            outlist.append(outstr)
+            return outlist
+        
+        elif datacoding == 8:
             print "It is ucs-2"
             print strs
             strs = strs.decode('gbk').encode('utf-16BE')
@@ -104,8 +118,8 @@ class svrbase:
         if len(strs) < 140:
             outstr.append(strs)
         else :
-            outstr.append('\x05\x00\x03\x00\x01\x02'+strs[0:134])
-            outstr.append(strs[134:])
+            outstr.append('\x05\x00\x03\x00\x02\x01'+ strs[0:134])
+            outstr.append('\x05\x00\x03\x00\x02\x02'+ strs[134:])
         print outstr
         return outstr
         

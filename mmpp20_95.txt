@@ -1,9 +1,9 @@
 [sys]
-host = 172.17.254.244
-port = 24501
-usr = 11
+host = 172.17.249.95
+port = 24003
+usr = 25
 pwd = 123
-listennum = 5
+listennum = 1
 sndloop = 1
 sleep = 3
 ptnum = 1
@@ -26,23 +26,20 @@ needdr = 1
 priority=2
 svcid = AAAAAAAAAA
 payer=1234567
-protocolid=1
-emiclass = 1
+protocolid=0
+emiclass = 0
 coding = 15
 validperiod=0
 scheduletime=0
-src = 95516
-des = 11111100000
-msg = 这是123没有456结束啦啦
-
-
-
+src = 106981095516
+des = 13050010000;13050020000;13060010000;13070010000;13774258895
+msg = 十五十五十五
 
 
 [autoack]
 autoackon = 0
 ackdelay = 1
 ackmsg = thisis123not54end
-ackcoding = 15
+ackcoding = 8
 ackneeddr = 1
 

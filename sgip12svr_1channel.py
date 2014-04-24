@@ -230,6 +230,7 @@ class sgip12Svr(svrbase.svrbase):
             self.tcpconnect = True
             # start snd thread
             self.sockid += 1
+            self.sock = sock
             sockthread = threading.Thread(target=self.svrproc, args=(sock, self.sockid))
             sockthread.start()
             
@@ -253,30 +254,32 @@ class sgip12Svr(svrbase.svrbase):
         totalcnt = 0
         while totalcnt < self.cfg.getsndloop():
             #time.sleep(sleeptime)
-            # connect
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            server_address = self.cfg.getremotesockaddr()
-            #print server_address
-            sock.connect(server_address)
-            sock.setblocking(True)
-            cltsockid += 1
-            if cltsockid >=10000:
-                cltsockid = 1
-            # sock proc
-            print "connected ", server_address
-            '''proc one connect work'''
-            self.initcountval(cltsockid)
+#             # connect
+#             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#             server_address = self.cfg.getremotesockaddr()
+#             #print server_address
+#             sock.connect(server_address)
+#             sock.setblocking(True)
+#             cltsockid += 1
+#             if cltsockid >=10000:
+#                 cltsockid = 1
+#             # sock proc
+#             print "connected ", server_address
+#             '''proc one connect work'''
+#             self.initcountval(cltsockid)
+            sock = self.sock
+            cltsockid = self.sockid
             para = self.getsockpara(cltsockid)
-            para.tcpconnect = True
-            self.sockslink += 1              
+#             para.tcpconnect = True
+#             self.sockslink += 1              
             rt = self.sndcltdata(sock, para) 
             sndcnt += rt  
             totalcnt += rt  
             # end sock
-            sock.close()
-            self.removecountval(cltsockid)
-            self.sockslink -= 1
-            print "sockid ", cltsockid, " terminated, now has ", self.sockslink, " links."
+#             sock.close()
+#             self.removecountval(cltsockid)
+#             self.sockslink -= 1
+#             print "sockid ", cltsockid, " terminated, now has ", self.sockslink, " links."
             
             if sndcnt >= self.cfg.getptnum():
                 print "deliver count: ", totalcnt, ", time : ", time.ctime() 
@@ -299,24 +302,26 @@ class sgip12Svr(svrbase.svrbase):
                     #print "now is ", time.time, "; snd time is : ", drtime 
                     time.sleep(0.1)
                     
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                server_address = self.cfg.getremotesockaddr()
-                #print server_address
-                sock.connect(server_address)
-                sock.setblocking(True)
-                cltsockid += 1
-                if cltsockid >=100000:
-                    cltsockid = 1
-                self.initcountval(cltsockid)
+#                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#                 server_address = self.cfg.getremotesockaddr()
+#                 #print server_address
+#                 sock.connect(server_address)
+#                 sock.setblocking(True)
+#                 cltsockid += 1
+#                 if cltsockid >=100000:
+#                     cltsockid = 1
+#                 self.initcountval(cltsockid)
+                sock = self.sock
+                cltsockid = self.sockid
                 para = self.getsockpara(cltsockid)
-                para.tcpconnect = True
-                self.sockslink += 1              
+#                 para.tcpconnect = True
+#                 self.sockslink += 1              
                 sndcnt += self.snddrdata(sock, para, drdata)     
                 # end sock
-                sock.close()
-                self.removecountval(cltsockid)
-                self.sockslink -= 1
-                print "sockid ", cltsockid, " terminated, now has ", self.sockslink, " links."
+#                 sock.close()
+#                 self.removecountval(cltsockid)
+#                 self.sockslink -= 1
+#                 print "sockid ", cltsockid, " terminated, now has ", self.sockslink, " links."
             time.sleep(0.1)
             if sndcnt >= self.cfg.getptnum():
                 totalcnt += sndcnt
@@ -445,6 +450,7 @@ class sgip12Svr(svrbase.svrbase):
         #启动接收进程
         self.startsvr()
         
+        time.sleep(1)
         #启动发送进程
         self.startclt()
         

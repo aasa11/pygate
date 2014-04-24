@@ -1,12 +1,12 @@
 [sys]
 host=172.17.234.112
 port=44001
-usr=11
-pwd=123
+usr=3
+pwd=5
 listennum=5
-sndloop=0
-sleep=0.05
-ptnum = 1000
+sndloop=2
+sleep=5
+ptnum = 1
 bufsize = 1024
 timeout = 6000000
 winsize=16
@@ -22,7 +22,7 @@ activetestgap=60
 [snddata]
 src=18812300000
 des=95516
-msg=abcd1234我们
+msg=A003E0000
 protocolid=1
 emiclass = 1
 coding=8
@@ -32,6 +32,6 @@ needdr=1
 [autoack]
 autoackon=0
 ackdelay=1
-ackmsg=我们的应答
+ackmsg=1234
 ackcoding=15
 ackneeddr=1

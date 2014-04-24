@@ -165,7 +165,7 @@ class cmpp20Svr(svrbase.svrbase):
             elif cmds[1] == self.ID_SUBMIT :
                 msgid = self.sndsubmitack(sock, cmds, para)
                 #test
-                print binascii.hexlify(data[0:100])
+                #print binascii.hexlify(data[0:100])
                 '''orgnize dr data'''
                 if self.cfg.getdrloop():
                     now = time.time()
